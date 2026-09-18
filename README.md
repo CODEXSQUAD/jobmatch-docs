@@ -28,7 +28,7 @@ JobMatch — сервис поиска работы с ограниченным 
 - [Frontend](https://github.com/CODEXSQUAD/jobmatch-frontend).
 - [Backend](https://github.com/CODEXSQUAD/jobmatch-backend).
 
-Публичные задачи документации: [Issues jobmatch-docs](https://github.com/CODEXSQUAD/jobmatch-docs/issues). На публичной странице CODEXSQUAD открытая Projects-доска пока не отображается; после создания или предоставления доступа сюда нужно добавить её реальный URL.
+Все 14 задач созданы как Issues: [docs](https://github.com/CODEXSQUAD/jobmatch-docs/issues), [backend](https://github.com/CODEXSQUAD/jobmatch-backend/issues), [frontend](https://github.com/CODEXSQUAD/jobmatch-frontend/issues). На публичной странице CODEXSQUAD открытая Projects-доска пока не отображается; после создания или предоставления доступа сюда нужно добавить её реальный URL.
 
 ## Изменения
 

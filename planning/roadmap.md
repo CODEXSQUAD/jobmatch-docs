@@ -69,7 +69,7 @@
 
 ## GitHub-факты и пробелы
 
-- В `jobmatch-docs` публично доступны Issues [#1–#7](https://github.com/CODEXSQUAD/jobmatch-docs/issues); Матвею назначены как минимум [MVP #1](https://github.com/CODEXSQUAD/jobmatch-docs/issues/1), [ERD #3](https://github.com/CODEXSQUAD/jobmatch-docs/issues/3), [roadmap #6](https://github.com/CODEXSQUAD/jobmatch-docs/issues/6) и [демонстрация #7](https://github.com/CODEXSQUAD/jobmatch-docs/issues/7).
+- Все 14 Issues публично созданы: [7 в docs](https://github.com/CODEXSQUAD/jobmatch-docs/issues), [5 в backend](https://github.com/CODEXSQUAD/jobmatch-backend/issues) и [2 во frontend](https://github.com/CODEXSQUAD/jobmatch-frontend/issues). Матвею назначены [MVP #1](https://github.com/CODEXSQUAD/jobmatch-docs/issues/1), [ERD #3](https://github.com/CODEXSQUAD/jobmatch-docs/issues/3), [roadmap #6](https://github.com/CODEXSQUAD/jobmatch-docs/issues/6) и [демонстрация #7](https://github.com/CODEXSQUAD/jobmatch-docs/issues/7).
 - На публичной странице организации 18 сентября отображалось `No open projects`, а в Issue #3 — `No projects`. Поэтому реальная ссылка на Projects-доску не подтверждена и в документацию не подставляется вымышленный URL.
 - Если доска приватная, Матвей должен прислать её URL или открыть доступ проверяющим. Если доски ещё нет, Клим создаёт organisation Project, после чего Матвей добавляет ссылку в README и переносит туда 14 Issues.
 
