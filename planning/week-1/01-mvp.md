@@ -25,7 +25,7 @@
 
 ## Входные файлы
 
-- [Черновик MVP](https://github.com/CODEXSQUAD/jobmatch-docs/blob/main/requirements/mvp.md).
+- [MVP](https://github.com/CODEXSQUAD/jobmatch-docs/blob/main/requirements/mvp.md).
 - [Состав команды](https://github.com/CODEXSQUAD/jobmatch-docs/blob/main/planning/team.md).
 - [Roadmap](https://github.com/CODEXSQUAD/jobmatch-docs/blob/main/planning/roadmap.md).
 
