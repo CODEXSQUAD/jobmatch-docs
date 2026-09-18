@@ -7,6 +7,7 @@ JobMatch — сервис поиска работы с ограниченным 
 - [Черновик MVP](requirements/mvp.md) — границы, сценарии и критерии готовности.
 - [Ответственность репозиториев](architecture/repositories.md).
 - [Команда](planning/team.md).
+- [Инструкция по Git для команды](planning/git-guide.md).
 - [Roadmap](planning/roadmap.md).
 - [API-контракты](api/README.md).
 - [Дизайн](design/README.md).
