@@ -1,0 +1,1094 @@
+openapi: 3.0.3
+info:
+  title: JobMatch API
+  version: 0.1.0
+  description: |
+    Рабочий контракт JobMatch для согласования frontend и backend.
+    Правила основаны на requirements/mvp.md и пока ожидают ревью команды.
+    Статус реализации каждого пути указан в x-implementation-status.
+servers:
+  - url: http://localhost:5140
+    description: Локальный запуск backend
+tags:
+  - name: Health
+    description: Проверка доступности API
+  - name: Auth
+    description: Регистрация, вход, выход и текущий пользователь
+  - name: Resume
+    description: Резюме соискателя
+  - name: Company
+    description: Компания работодателя
+  - name: Vacancies
+    description: Публичный каталог опубликованных вакансий
+  - name: Applications
+    description: Отклики и решения работодателя
+  - name: Credits
+    description: Остаток бесплатных откликов
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Проверить доступность API
+      description: Проверяет ответ API; состояние подключения к БД не проверяется.
+      operationId: getHealth
+      x-implementation-status: implemented
+      responses:
+        '200':
+          description: API отвечает.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+  /api/vacancies:
+    get:
+      tags: [Vacancies]
+      summary: Получить каталог вакансий
+      description: |
+        Возвращает только вакансии со статусом Published.
+        Сортировка по publishedAt от новых к старым, затем по id для
+        устойчивой пагинации. Поиск q выполняется по названию вакансии.
+        Параметры и формат ответа являются черновиком для согласования.
+      operationId: listVacancies
+      x-implementation-status: planned
+      parameters:
+        - name: q
+          in: query
+          description: Поиск по названию вакансии без учёта регистра.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+          example: Разработчик
+        - name: city
+          in: query
+          description: Фильтр по городу без учёта регистра.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 120
+          example: Москва
+        - name: workFormat
+          in: query
+          description: Формат работы.
+          schema:
+            $ref: '#/components/schemas/WorkFormat'
+        - name: page
+          in: query
+          description: Номер страницы, начиная с 1.
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: pageSize
+          in: query
+          description: Число вакансий на странице.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+      responses:
+        '200':
+          description: Страница опубликованных вакансий; items может быть пустым.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VacancyPage'
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    title: Разработчик C#
+                    city: Москва
+                    workFormat: Hybrid
+                    salaryFrom: 120000
+                    salaryTo: 180000
+                    company:
+                      id: 22222222-2222-4222-8222-222222222222
+                      name: Пример компании
+                    publishedAt: '2026-09-20T09:00:00Z'
+                page: 1
+                pageSize: 20
+                totalCount: 1
+                totalPages: 1
+        '400':
+          description: Некорректный фильтр или параметр пагинации.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                code: invalid_query
+                message: page должен быть не меньше 1.
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Зарегистрировать пользователя
+      description: Создаёт учётную запись с одной ролью Candidate или Employer.
+      operationId: register
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: candidate@example.test
+              password: ExamplePassword123!
+              role: Candidate
+      responses:
+        '201':
+          description: Пользователь создан.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+              example:
+                id: 33333333-3333-4333-8333-333333333333
+                email: candidate@example.test
+                role: Candidate
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Войти
+      description: Устанавливает cookie-сессию при верных учётных данных.
+      operationId: login
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: candidate@example.test
+              password: ExamplePassword123!
+      responses:
+        '200':
+          description: Вход выполнен; ответ устанавливает cookie-сессию.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+              example:
+                id: 33333333-3333-4333-8333-333333333333
+                email: candidate@example.test
+                role: Candidate
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Выйти
+      operationId: logout
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          description: Сессия завершена.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/me:
+    get:
+      tags: [Auth]
+      summary: Получить текущего пользователя
+      operationId: getCurrentUser
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Данные вошедшего пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+              example:
+                id: 33333333-3333-4333-8333-333333333333
+                email: candidate@example.test
+                role: Candidate
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/resume/me:
+    get:
+      tags: [Resume]
+      summary: Получить своё резюме
+      description: Доступно только соискателю.
+      operationId: getMyResume
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Текущее резюме.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resume'
+              example:
+                fullName: Иван Петров
+                contactEmail: candidate@example.test
+                contactPhone: '+70000000000'
+                desiredPosition: Разработчик
+                summary: Учебное резюме
+                skills: [C#, PostgreSQL]
+                workExperience: []
+                education: []
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Resume]
+      summary: Создать или заменить своё резюме
+      description: Доступно только соискателю; для отклика обязательны все поля из ResumeInput.
+      operationId: putMyResume
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeInput'
+            example:
+              fullName: Иван Петров
+              contactEmail: candidate@example.test
+              contactPhone: '+70000000000'
+              desiredPosition: Разработчик
+              summary: Учебное резюме
+              skills: [C#, PostgreSQL]
+              workExperience: []
+              education: []
+      responses:
+        '200':
+          description: Резюме сохранено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resume'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/company/me:
+    get:
+      tags: [Company]
+      summary: Получить свою компанию
+      description: Доступно только работодателю.
+      operationId: getMyCompany
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Компания работодателя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+              example:
+                id: 22222222-2222-4222-8222-222222222222
+                name: Пример компании
+                description: Учебная компания
+                city: Москва
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Company]
+      summary: Создать или заменить свою компанию
+      operationId: putMyCompany
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyInput'
+            example:
+              name: Пример компании
+              description: Учебная компания
+              city: Москва
+      responses:
+        '200':
+          description: Компания сохранена.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/vacancies/{vacancyId}:
+    parameters:
+      - $ref: '#/components/parameters/VacancyId'
+    get:
+      tags: [Vacancies]
+      summary: Получить карточку опубликованной вакансии
+      operationId: getVacancy
+      x-implementation-status: planned
+      responses:
+        '200':
+          description: Вакансия и условия работы.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vacancy'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                title: Разработчик C#
+                description: Разработка веб-приложения
+                requirements: Знание C# и SQL
+                city: Москва
+                workFormat: Hybrid
+                salaryFrom: 120000
+                salaryTo: 180000
+                status: Published
+                company:
+                  id: 22222222-2222-4222-8222-222222222222
+                  name: Пример компании
+                publishedAt: '2026-09-20T09:00:00Z'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Vacancies]
+      summary: Обновить свой черновик вакансии
+      operationId: updateVacancy
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VacancyInput'
+      responses:
+        '200':
+          description: Черновик обновлён.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vacancy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/employer/vacancies:
+    post:
+      tags: [Vacancies]
+      summary: Создать черновик вакансии
+      operationId: createVacancy
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VacancyInput'
+            example:
+              title: Разработчик C#
+              description: Разработка веб-приложения
+              requirements: Знание C# и SQL
+              city: Москва
+              workFormat: Hybrid
+              salaryFrom: 120000
+              salaryTo: 180000
+      responses:
+        '201':
+          description: Черновик создан.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vacancy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/employer/vacancies/{vacancyId}/publish:
+    parameters:
+      - $ref: '#/components/parameters/VacancyId'
+    post:
+      tags: [Vacancies]
+      summary: Опубликовать свой черновик
+      operationId: publishVacancy
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Вакансия опубликована.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vacancy'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/employer/vacancies/{vacancyId}/close:
+    parameters:
+      - $ref: '#/components/parameters/VacancyId'
+    post:
+      tags: [Vacancies]
+      summary: Закрыть свою вакансию
+      operationId: closeVacancy
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Вакансия закрыта; прежние отклики сохранены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vacancy'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/vacancies/{vacancyId}/applications:
+    parameters:
+      - $ref: '#/components/parameters/VacancyId'
+    post:
+      tags: [Applications]
+      summary: Откликнуться на вакансию
+      description: |
+        Только соискатель с заполненным резюме может откликнуться на Published-вакансию.
+        Один отклик и одно списание на пару кандидат–вакансия. Повтор с тем же
+        Idempotency-Key и тем же телом возвращает ранее созданный отклик.
+        Дневной лимит считается по календарному дню Europe/Moscow.
+      operationId: createApplication
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Уникальный ключ запроса в пределах соискателя.
+          schema:
+            type: string
+            maxLength: 100
+          example: 550e8400-e29b-41d4-a716-446655440000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationInput'
+            example:
+              coverLetter: Хочу работать в вашей команде.
+      responses:
+        '201':
+          description: Отклик создан; одна единица лимита списана.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '200':
+          description: Безопасный повтор; возвращён существующий отклик без списания.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    get:
+      tags: [Applications]
+      summary: Получить отклики на свою вакансию
+      description: Доступно только работодателю этой компании.
+      operationId: listVacancyApplications
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Отклики, включая снимки резюме на момент отправки.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/applications/me:
+    get:
+      tags: [Applications]
+      summary: Получить свои отклики
+      description: Доступно только соискателю; чужие отклики не возвращаются.
+      operationId: listMyApplications
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Отклики и актуальные статусы.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/applications/{applicationId}/withdraw:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      tags: [Applications]
+      summary: Отозвать свой отклик
+      description: Допустимо из Submitted, Viewed или Invited; лимит не возвращается.
+      operationId: withdrawApplication
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Отклик отозван.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/employer/applications/{applicationId}/status:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    patch:
+      tags: [Applications]
+      summary: Отметить просмотр, пригласить или отказать
+      description: |
+        Только работодатель компании вакансии. Viewed допустим из Submitted;
+        Invited из Submitted или Viewed; Rejected из Submitted, Viewed или Invited.
+        Rejected и Withdrawn — конечные состояния.
+      operationId: updateApplicationStatus
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationStatusInput'
+            example:
+              status: Invited
+      responses:
+        '200':
+          description: Статус отклика обновлён.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/credits/me:
+    get:
+      tags: [Credits]
+      summary: Получить остаток бесплатных откликов
+      description: Доступно соискателю; день определяется по Europe/Moscow.
+      operationId: getMyCredits
+      x-implementation-status: planned
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Остаток на текущий московский день.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditBalance'
+              example:
+                periodDate: '2026-09-21'
+                balance: 4
+                dailyLimit: 5
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JobMatch.Session
+      description: Рабочее предложение; имя cookie и CSRF-защита согласуются с backend.
+  parameters:
+    VacancyId:
+      name: vacancyId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ApplicationId:
+      name: applicationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    BadRequest:
+      description: Некорректные данные запроса.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            code: validation_error
+            message: Проверьте обязательные поля.
+    Unauthorized:
+      description: Требуется вход.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Forbidden:
+      description: Роль или принадлежность ресурса не разрешает действие.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    NotFound:
+      description: Ресурс не найден или недоступен пользователю.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Conflict:
+      description: Конфликт бизнес-правила или состояния ресурса.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    UserRole:
+      type: string
+      enum: [Candidate, Employer]
+    RegisterRequest:
+      type: object
+      required: [email, password, role]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        password:
+          type: string
+          format: password
+        role:
+          $ref: '#/components/schemas/UserRole'
+      additionalProperties: false
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      additionalProperties: false
+    CurrentUser:
+      type: object
+      required: [id, email, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+      additionalProperties: false
+    WorkExperienceInput:
+      type: object
+      required: [companyName, position, startedOn]
+      properties:
+        companyName:
+          type: string
+          maxLength: 200
+        position:
+          type: string
+          maxLength: 200
+        startedOn:
+          type: string
+          format: date
+        endedOn:
+          type: string
+          format: date
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    EducationInput:
+      type: object
+      required: [institution, specialty]
+      properties:
+        institution:
+          type: string
+          maxLength: 250
+        specialty:
+          type: string
+          maxLength: 200
+        degree:
+          type: string
+          maxLength: 100
+          nullable: true
+        graduationYear:
+          type: integer
+          nullable: true
+      additionalProperties: false
+    ResumeInput:
+      type: object
+      required: [fullName, contactEmail, contactPhone, desiredPosition, summary, skills, workExperience, education]
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 320
+        contactPhone:
+          type: string
+          minLength: 1
+          maxLength: 32
+        desiredPosition:
+          type: string
+          minLength: 1
+          maxLength: 200
+        summary:
+          type: string
+          minLength: 1
+        skills:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            maxLength: 100
+        workExperience:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkExperienceInput'
+        education:
+          type: array
+          items:
+            $ref: '#/components/schemas/EducationInput'
+      additionalProperties: false
+    Resume:
+      allOf:
+        - $ref: '#/components/schemas/ResumeInput'
+    CompanyInput:
+      type: object
+      required: [name, description, city]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        city:
+          type: string
+          minLength: 1
+          maxLength: 120
+      additionalProperties: false
+    Company:
+      type: object
+      required: [id, name, description, city]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        city:
+          type: string
+          maxLength: 120
+      additionalProperties: false
+    VacancyInput:
+      type: object
+      required: [title, description, requirements, city, workFormat]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        requirements:
+          type: string
+          minLength: 1
+        city:
+          type: string
+          minLength: 1
+          maxLength: 120
+        workFormat:
+          $ref: '#/components/schemas/WorkFormat'
+        salaryFrom:
+          type: integer
+          minimum: 0
+          nullable: true
+        salaryTo:
+          type: integer
+          minimum: 0
+          nullable: true
+      additionalProperties: false
+    Vacancy:
+      type: object
+      required: [id, title, description, requirements, city, workFormat, status, company]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        requirements:
+          type: string
+        city:
+          type: string
+          maxLength: 120
+        workFormat:
+          $ref: '#/components/schemas/WorkFormat'
+        salaryFrom:
+          type: integer
+          minimum: 0
+          nullable: true
+        salaryTo:
+          type: integer
+          minimum: 0
+          nullable: true
+        status:
+          type: string
+          enum: [Draft, Published, Closed]
+        company:
+          $ref: '#/components/schemas/CompanySummary'
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    ApplicationInput:
+      type: object
+      properties:
+        coverLetter:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ApplicationStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [Viewed, Invited, Rejected]
+      additionalProperties: false
+    Application:
+      type: object
+      required: [id, vacancyId, status, resumeSnapshot, snapshotVersion, submittedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        vacancyId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [Submitted, Viewed, Invited, Rejected, Withdrawn]
+        coverLetter:
+          type: string
+          nullable: true
+        resumeSnapshot:
+          $ref: '#/components/schemas/Resume'
+        snapshotVersion:
+          type: integer
+          minimum: 1
+        submittedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    CreditBalance:
+      type: object
+      required: [periodDate, balance, dailyLimit]
+      properties:
+        periodDate:
+          type: string
+          format: date
+          description: Московский календарный день.
+        balance:
+          type: integer
+          minimum: 0
+        dailyLimit:
+          type: integer
+          minimum: 1
+      additionalProperties: false
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+      additionalProperties: false
+    WorkFormat:
+      type: string
+      enum: [Office, Remote, Hybrid]
+    CompanySummary:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 200
+      additionalProperties: false
+    VacancySummary:
+      type: object
+      required: [id, title, city, workFormat, company, publishedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 120
+        workFormat:
+          $ref: '#/components/schemas/WorkFormat'
+        salaryFrom:
+          type: integer
+          minimum: 0
+          nullable: true
+        salaryTo:
+          type: integer
+          minimum: 0
+          nullable: true
+        company:
+          $ref: '#/components/schemas/CompanySummary'
+        publishedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    VacancyPage:
+      type: object
+      required: [items, page, pageSize, totalCount, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VacancySummary'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+        totalCount:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      additionalProperties: false
