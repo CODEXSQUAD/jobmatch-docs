@@ -14,6 +14,7 @@ JobMatch — сервис поиска работы с ограниченным 
 - [Дизайн](design/README.md).
 - [Решения созвонов](meetings/README.md).
 - [Сценарий лабораторной №2](demo/lab-2.md).
+- [План проверки продуктовой гипотезы](research/validation-plan.md), [анкеты](research/questionnaires.md) и [задача Матвею на запуск форм](research/matvey-questionnaire-task.md).
 
 ## Статус
 
