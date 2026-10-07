@@ -51,7 +51,7 @@ paths:
         устойчивой пагинации. Поиск q выполняется по названию вакансии.
         Параметры и формат ответа являются черновиком для согласования.
       operationId: listVacancies
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - name: q
           in: query
