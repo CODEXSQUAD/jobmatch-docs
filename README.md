@@ -15,6 +15,7 @@ JobMatch — сервис поиска работы с ограниченным 
 - [Решения созвонов](meetings/README.md).
 - [Сценарий лабораторной №2](demo/lab-2.md).
 - Исследование: [план проверки гипотезы](research/validation-plan.md), [анкеты](research/questionnaires.md), [гайд интервью](research/interview-guide.md) и [шаблон итогового отчёта](research/report-template.md).
+- Кабинетное исследование по задаче #19: [доказательства проблемы](research/market-evidence.md) и [анализ пяти конкурентов](research/competitor-analysis.md) — подготовлено 8 октября 2026 года.
 - Задачи исследования: [Матвею на запуск форм](planning/research-questionnaires.md) и [Альберту на рынок и конкурентов](planning/market-and-competitors-research.md).
 
 ## Статус
