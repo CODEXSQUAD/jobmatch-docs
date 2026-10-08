@@ -16,7 +16,7 @@
 - [Задача Матвею на создание и запуск форм](https://github.com/CODEXSQUAD/jobmatch-docs/blob/main/planning/research-questionnaires.md).
 - [Задача Альберту на исследование рынка и конкурентов](https://github.com/CODEXSQUAD/jobmatch-docs/blob/main/planning/market-and-competitors-research.md).
 
-Планируемые результаты Альберта: `research/market-evidence.md` и `research/competitor-analysis.md`. Пока эти файлы не созданы и не слиты в `main`, их нельзя оформлять как рабочие ссылки.
+Кабинетные материалы `research/market-evidence.md` и `research/competitor-analysis.md` подготовлены 8 октября 2026 года для ревью Клима. До слияния изменений ссылки на них в `main` не считать опубликованными. Этот шаблон ещё предстоит заполнить после синтеза внешних данных с реальными анкетами и интервью.
 
 ---
 
