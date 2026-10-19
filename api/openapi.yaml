@@ -129,7 +129,7 @@ paths:
       summary: Зарегистрировать пользователя
       description: Создаёт учётную запись с одной ролью Candidate или Employer.
       operationId: register
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:
@@ -161,7 +161,7 @@ paths:
       summary: Войти
       description: Устанавливает cookie-сессию при верных учётных данных.
       operationId: login
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:
@@ -191,7 +191,7 @@ paths:
       tags: [Auth]
       summary: Выйти
       operationId: logout
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -204,7 +204,7 @@ paths:
       tags: [Auth]
       summary: Получить текущего пользователя
       operationId: getCurrentUser
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -226,7 +226,7 @@ paths:
       summary: Получить своё резюме
       description: Доступно только соискателю.
       operationId: getMyResume
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -256,7 +256,7 @@ paths:
       summary: Создать или заменить своё резюме
       description: Доступно только соискателю; для отклика обязательны все поля из ResumeInput.
       operationId: putMyResume
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       requestBody:
@@ -293,7 +293,7 @@ paths:
       summary: Получить свою компанию
       description: Доступно только работодателю.
       operationId: getMyCompany
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -318,7 +318,7 @@ paths:
       tags: [Company]
       summary: Создать или заменить свою компанию
       operationId: putMyCompany
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       requestBody:
@@ -351,7 +351,7 @@ paths:
       tags: [Vacancies]
       summary: Получить карточку опубликованной вакансии
       operationId: getVacancy
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         '200':
           description: Вакансия и условия работы.
@@ -379,7 +379,7 @@ paths:
       tags: [Vacancies]
       summary: Обновить свой черновик вакансии
       operationId: updateVacancy
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       requestBody:
@@ -406,11 +406,32 @@ paths:
         '409':
           $ref: '#/components/responses/Conflict'
   /api/employer/vacancies:
+    get:
+      tags: [Vacancies]
+      summary: Получить вакансии своей компании
+      description: Возвращает черновики, опубликованные и закрытые вакансии текущего работодателя.
+      operationId: listEmployerVacancies
+      x-implementation-status: implemented
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Вакансии компании в порядке от новых к старым.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vacancy'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     post:
       tags: [Vacancies]
       summary: Создать черновик вакансии
       operationId: createVacancy
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       requestBody:
@@ -447,7 +468,7 @@ paths:
       tags: [Vacancies]
       summary: Опубликовать свой черновик
       operationId: publishVacancy
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -472,7 +493,7 @@ paths:
       tags: [Vacancies]
       summary: Закрыть свою вакансию
       operationId: closeVacancy
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -502,7 +523,7 @@ paths:
         Idempotency-Key и тем же телом возвращает ранее созданный отклик.
         Дневной лимит считается по календарному дню Europe/Moscow.
       operationId: createApplication
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       parameters:
@@ -550,7 +571,7 @@ paths:
       summary: Получить отклики на свою вакансию
       description: Доступно только работодателю этой компании.
       operationId: listVacancyApplications
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -574,7 +595,7 @@ paths:
       summary: Получить свои отклики
       description: Доступно только соискателю; чужие отклики не возвращаются.
       operationId: listMyApplications
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -598,7 +619,7 @@ paths:
       summary: Отозвать свой отклик
       description: Допустимо из Submitted, Viewed или Invited; лимит не возвращается.
       operationId: withdrawApplication
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
@@ -627,7 +648,7 @@ paths:
         Invited из Submitted или Viewed; Rejected из Submitted, Viewed или Invited.
         Rejected и Withdrawn — конечные состояния.
       operationId: updateApplicationStatus
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       requestBody:
@@ -661,7 +682,7 @@ paths:
       summary: Получить остаток бесплатных откликов
       description: Доступно соискателю; день определяется по Europe/Moscow.
       operationId: getMyCredits
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - cookieAuth: []
       responses:
