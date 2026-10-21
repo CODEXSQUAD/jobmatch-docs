@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="501" viewBox="0 0 1100 501">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="28" y="40" font-family="Arial, DejaVu Sans, sans-serif" font-size="24" font-weight="700" fill="#1f2937">Что делает сервис полезным несмотря на ограничение</text>
+<text x="28" y="70" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#6b7280">Целевая выборка: n=12; можно выбрать несколько вариантов</text>
+<text x="28" y="132" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Понятные статусы</text>
+<rect x="470" y="110" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="110" width="550.0" height="28" rx="4" fill="#4C78A8"/>
+<text x="1030.0" y="130" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">7</text>
+<text x="28" y="180" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Точный поиск и фильтры</text>
+<rect x="470" y="158" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="158" width="550.0" height="28" rx="4" fill="#4C78A8"/>
+<text x="1030.0" y="178" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">7</text>
+<text x="28" y="228" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Более частая обратная связь</text>
+<rect x="470" y="206" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="206" width="392.9" height="28" rx="4" fill="#4C78A8"/>
+<text x="872.9" y="226" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">5</text>
+<text x="28" y="276" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Дополнительные бесплатные отклики</text>
+<rect x="470" y="254" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="254" width="392.9" height="28" rx="4" fill="#4C78A8"/>
+<text x="872.9" y="274" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">5</text>
+<text x="28" y="324" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Проверка качества вакансий</text>
+<rect x="470" y="302" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="302" width="235.7" height="28" rx="4" fill="#4C78A8"/>
+<text x="715.7" y="322" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">3</text>
+<text x="28" y="372" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Оценка соответствия резюме</text>
+<rect x="470" y="350" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="350" width="157.1" height="28" rx="4" fill="#4C78A8"/>
+<text x="637.1" y="370" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">2</text>
+<text x="28" y="420" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Ограничение неприемлемо</text>
+<rect x="470" y="398" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="398" width="157.1" height="28" rx="4" fill="#E15759"/>
+<text x="637.1" y="418" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">2</text>
+</svg>
