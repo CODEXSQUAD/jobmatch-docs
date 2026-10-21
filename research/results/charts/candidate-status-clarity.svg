@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="357" viewBox="0 0 1100 357">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="28" y="40" font-family="Arial, DejaVu Sans, sans-serif" font-size="24" font-weight="700" fill="#1f2937">Понимание результата отклика</text>
+<text x="28" y="70" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#6b7280">Целевая выборка: n=12; значения на столбцах — число респондентов</text>
+<text x="28" y="132" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Почти всегда понятен итог</text>
+<rect x="470" y="110" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="110" width="275.0" height="28" rx="4" fill="#4C78A8"/>
+<text x="755.0" y="130" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">2</text>
+<text x="28" y="180" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Иногда есть ответ или статус</text>
+<rect x="470" y="158" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="158" width="412.5" height="28" rx="4" fill="#4C78A8"/>
+<text x="892.5" y="178" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">3</text>
+<text x="28" y="228" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Чаще всего итог непонятен</text>
+<rect x="470" y="206" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="206" width="550.0" height="28" rx="4" fill="#4C78A8"/>
+<text x="1030.0" y="226" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">4</text>
+<text x="28" y="276" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" fill="#374151">Затруднились ответить</text>
+<rect x="470" y="254" width="550" height="28" rx="4" fill="#eef2f7"/>
+<rect x="470" y="254" width="412.5" height="28" rx="4" fill="#4C78A8"/>
+<text x="892.5" y="274" font-family="Arial, DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#1f2937">3</text>
+</svg>
