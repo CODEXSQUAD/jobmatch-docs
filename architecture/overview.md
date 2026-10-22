@@ -1,6 +1,6 @@
 # Архитектура JobMatch
 
-**Версия:** 1.0 от 22 октября 2026 года.
+**Версия:** 1.1 от 22 октября 2026 года.
 **Статус:** фактическая архитектура демонстрационного MVP в ветке `main`.
 
 ## Общая схема
@@ -23,10 +23,12 @@ flowchart TB
         subgraph backend[Backend-контейнер]
             api[ASP.NET Core Minimal API<br/>HTTP endpoints и бизнес-правила]
             auth[ASP.NET Core Identity<br/>cookie-сессия, роли и права]
+            dataProtection[ASP.NET Core Data Protection<br/>защита cookie]
             persistence[EF Core + Npgsql<br/>доступ к данным и транзакции]
             api --> auth
             api --> persistence
             auth --> persistence
+            auth -. использует ключи .-> dataProtection
         end
 
         subgraph database[Контейнер данных]
@@ -41,7 +43,7 @@ flowchart TB
     nginx -->|отдаёт frontend<br/>http://localhost:8080| react
     react -->|HTTP /api и /health| nginx
     postgresVolume[(postgres_data)] --> postgres
-    keysVolume[(data_protection_keys)] --> auth
+    keysVolume[(data_protection_keys)] --> dataProtection
 ```
 
 На компьютере пользователя опубликован только порт frontend-контейнера `127.0.0.1:8080`. Браузер получает React-приложение от Nginx и отправляет запросы на тот же адрес. Nginx перенаправляет `/api/*` и `/health` к backend во внутренней сети Docker. Backend напрямую из браузера не публикуется, а PostgreSQL доступен только backend.
@@ -58,6 +60,24 @@ flowchart TB
 | PostgreSQL | Постоянное хранение данных MVP. Схема подробнее показана в [ERD](erd.md). |
 | Docker Compose | Сборка и согласованный запуск трёх контейнеров, зависимости запуска и проверки готовности. |
 
+## Внутренние зависимости backend
+
+```mermaid
+flowchart LR
+    apiProject[JobMatch.Api<br/>Minimal API endpoints,<br/>DTO и часть бизнес-правил]
+    applicationProject[JobMatch.Application<br/>контракты и модели запросов каталога]
+    infrastructureProject[JobMatch.Infrastructure<br/>EF Core, Identity, миграции,<br/>seed и реализация каталога]
+    domainProject[JobMatch.Domain<br/>сущности и перечисления]
+
+    apiProject --> applicationProject
+    apiProject --> infrastructureProject
+    infrastructureProject --> applicationProject
+    infrastructureProject --> domainProject
+    applicationProject --> domainProject
+```
+
+Стрелки показывают фактические ссылки проектов. Текущая реализация не является строгой Clean Architecture: большинство endpoint'ов `JobMatch.Api` напрямую используют `JobMatchDbContext` из `JobMatch.Infrastructure`, и часть бизнес-правил находится в обработчиках API. Интерфейс `IVacancyCatalog` вынесен в `JobMatch.Application`, а его реализация находится в `JobMatch.Infrastructure`.
+
 ## Прохождение основного сценария
 
 ```mermaid
@@ -68,9 +88,12 @@ sequenceDiagram
     participant API as ASP.NET Core API
     participant DB as PostgreSQL
 
-    Employer->>UI: Создаёт и публикует вакансию
+    Employer->>UI: Создаёт вакансию
     UI->>API: POST /api/employer/vacancies
-    API->>DB: Сохраняет черновик и публикацию
+    API->>DB: Сохраняет вакансию со статусом Draft
+    Employer->>UI: Публикует черновик
+    UI->>API: POST /api/employer/vacancies/{id}/publish
+    API->>DB: Меняет статус на Published
 
     Candidate->>UI: Заполняет резюме и выбирает вакансию
     UI->>API: PUT /api/resume/me
