@@ -5,6 +5,7 @@ JobMatch — сервис поиска работы с ограниченным 
 ## Навигация
 
 - [MVP](requirements/mvp.md) — границы, сценарии, правила и критерии готовности.
+- [Архитектурная схема](architecture/overview.md) — компоненты приложения, связи и основной сквозной сценарий.
 - [ERD](architecture/erd.md) и [словарь данных](architecture/data-dictionary.md).
 - [Ответственность репозиториев](architecture/repositories.md).
 - [Команда](planning/team.md).
