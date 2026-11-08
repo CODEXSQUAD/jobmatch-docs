@@ -800,6 +800,7 @@ components:
       additionalProperties: false
     WorkExperienceInput:
       type: object
+      description: Опыт работы. Имена JSON-полей фиксированы в camelCase.
       required: [companyName, position, startedOn]
       properties:
         companyName:
@@ -821,6 +822,7 @@ components:
       additionalProperties: false
     EducationInput:
       type: object
+      description: Образование. Имена JSON-полей фиксированы в camelCase.
       required: [institution, specialty]
       properties:
         institution:
@@ -839,6 +841,10 @@ components:
       additionalProperties: false
     ResumeInput:
       type: object
+      description: |
+        Полные данные резюме. Контакты, желаемая должность и описание — строки;
+        навыки — массив строк; опыт и образование — массивы типизированных объектов.
+        Все имена JSON-полей, включая вложенные, передаются в camelCase.
       required: [fullName, contactEmail, contactPhone, desiredPosition, summary, skills, workExperience, education]
       properties:
         fullName:
@@ -878,6 +884,14 @@ components:
     Resume:
       allOf:
         - $ref: '#/components/schemas/ResumeInput'
+    ResumeSnapshot:
+      allOf:
+        - $ref: '#/components/schemas/Resume'
+      description: |
+        Неизменяемый снимок резюме на момент отклика. API всегда возвращает
+        поля снимка в camelCase. Ранее сохранённые снимки версии 1 с PascalCase
+        читаются backend и нормализуются в этот формат; новые снимки версии 2
+        сохраняются в camelCase.
     CompanyInput:
       type: object
       required: [name, description, city]
@@ -1008,10 +1022,11 @@ components:
           type: string
           nullable: true
         resumeSnapshot:
-          $ref: '#/components/schemas/Resume'
+          $ref: '#/components/schemas/ResumeSnapshot'
         snapshotVersion:
           type: integer
           minimum: 1
+          description: Версия формата снимка; 1 — legacy PascalCase, 2 — текущий camelCase.
         submittedAt:
           type: string
           format: date-time
